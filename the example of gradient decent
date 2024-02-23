@@ -1,0 +1,19 @@
+def funtion(x):
+    return x**2 + 5*2 + 6
+
+def gradient(x):
+    return 2*x + 5
+
+initial_x = 0
+learning_rate = 0.01
+num_iterations = 500
+def gradient_descent(initial_x, learning_rate, num_iterations):
+    x = initial_x
+    for i in range(num_iterations):
+        grad = gradient(x)
+        x = x - learning_rate * grad
+        print('iteration', i+1, ':', 'x=', x, 'Function value=', funtion(x))
+    return x
+
+final_x = gradient_descent(initial_x, learning_rate, num_iterations)
+print('Final x value after gradient descent', final_x )
