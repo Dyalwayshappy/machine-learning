@@ -1,0 +1,21 @@
+import numpy as np
+def predict_single_loop(x,w,b):
+    ""
+    #single predict using linear regression
+    #Args：
+      #       x : (ndarry shape (n,))  with multiple features
+      #       w : (ndarry shape (n,))  model parameters
+      #       b : (sclar            )  model parameters
+    #Returns
+      #       p: (scalar)              prediction
+    ""
+    n = len(x)
+    p = 0
+    p = np.dot(x,w) + b
+    return (p)
+#get a row form our training data
+x_vec = x_train[0,:]
+print(f'x_vec shape {x_vec.shape}, x_vec value: {x_vec}')
+#make a prediction
+f_wb = predict_single_loop(x_vec,w_init,b_init)
+print(f'f_wb shape{f_wv.shape}, prediction:{f_wb}')
