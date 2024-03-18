@@ -1,0 +1,64 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.style.use('./deeplearning.mplstyles') #根据需要的文件名进行修改
+#
+x_train = np.array([1.0,2.0])
+y_train = np.array([300.0,500.0])
+print(f"x_train shape: {x_train.shape}")
+#训练例子的数字
+m = x_train.shape[0]
+print(f"Number of training examples is : {m}")
+#训练例子
+i = 0 # change this to 1 to see  (x^1 and y^1)
+x_i = x_train[i]
+y_i = y_train[i]
+print(f"(x^({i}), y^({i}), = ({x_i}, {y_i}")
+#绘制图表
+plt.scatter(x_train,y_train, marker='x', color='r')
+#设置标题
+plt.title("House Price Prediction")
+#设置x,y轴
+plt.ylabel('price(in 1000s of dollars)')
+plt.xlabel('Size (1000 sqft)')
+plt.show()
+
+#model function (f(w,b) (x^(i)) = wx^i + b
+#从w=100 b=100 开始
+w = 100
+b = 100
+print(f"w: {w}")
+print(f"b: {b}\n")
+#当点数变多时，写这样的代码会很繁琐，我们用for循环
+
+print('--------------------------------') #以上是简单的带脉解释
+#下面是正式的代码
+def computing_model_output(x,w,b):
+    '''''
+    #Computers the prediction of a linear model #计算机线性模型预测
+    Args : #参数
+       x (ndarry(m,)) : Data, m examples #数据， m个例子
+       w, b (scalar): model parameters #模型参数
+    Returens:
+       y (ndarry(m,)) : target values #目标值
+    '''''
+    m = x.shape[0]
+    f_wb = np.zeros(m)
+    for i in range(m):
+        f_wb[i] =  w * x[i] + b
+
+    return f_wb
+
+tmp_f_wb = computing_model_output(x_train, w ,b)
+#绘制模型预测
+plt.plot(x_train,tmp_f_wb, c='b', label='Our Prediction')
+#绘制数据点
+plt.scatter(x_train,y_train, marker='x', color='r', label='Actual values')
+
+#title
+plt.title("House Price")
+#x,y轴
+plt.ylabel('price(in 1000s of dollars)')
+plt.xlabel('Size (1000 sqft)')
+plt.legend()
+plt.show()
