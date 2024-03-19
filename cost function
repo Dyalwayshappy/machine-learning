@@ -1,0 +1,55 @@
+#cost function会给我们反映我们模型的运行情况，以便我们可以尝试让他做的更好
+#原模型仍然是f(x) = wx + b， 这里的w和b都是系数也称为权重
+#我们如何衡量一条构成的预测直线与训练数据的拟合程度
+#构建成本函数目的：构建一个不会随着训练集大小而自动变大的cost function， 计算平均平方误差，额外再除以2是为了使计算看起来更灵活
+#cost function： i=1 到 m (yhat^i - y^i)^2 * 1/2m     这里的(yhat^i - y^i)是误差(error)
+#平方误差成本函数也叫代价函数
+import numpy as np
+#%matplotlib widget 只能在Jupyter使用 
+import matplotlib.pyplot as plt
+from lab_utils_uni_副本 import plt_intuition, plt_stationary, plt_update_onclick, soup_bowl
+plt.style.use('./deeplearning.mplstyle ')
+    #
+    # 表格大概是
+    #size       price
+    # 1          300
+    #2          500
+
+#x_train = np.array([1.0, 2.0]) #以英尺为单位
+#y_train = np.array([300.0, 500.0])  #价格以千元为单位
+
+def cost_function(x, y, w, b):
+    """
+    cost_function是liner regression的成本函数
+    Args:
+      x (ndarray (m,)): Data, m examples
+      y (ndarray (m,)): target values
+      w,b (scalar)    : model parameters
+
+    Returns
+        total_cost (float): The cost of using w,b as the parameters for linear regression
+               to fit the data points in x and y
+    """
+# The number of training examples
+    m = x.shape[0]
+#这是cost function的实现
+    cost_sum = 0 #求和
+    for i in range(m):
+        f_wb = w * x[i] +b
+        cost = (f_wb - y[i]) **2
+        cost_sum = cost_sum + cost
+    total_cost = (1/(2*m)) * cost_sum
+
+    return total_cost
+
+#成本函数衡量模型在训练数据上的准确程度的指标
+#下面是绘图
+#plt_stationary(x_train, y_train) jupyter使用 这种交互式绘图只能在jupyter使用，在pycharm不能使用这个而是要使用matplotlib
+
+#绘制更大型的数据图
+x_train = np.array([1.0, 1.7, 2.0, 2.5, 3.0, 3.2])
+y_train = np.array([250, 300, 480,  430,   630, 730,])
+plt.close('all')
+fig, ax, dyn_items = plt_stationary(x_train, y_train)
+updater = plt_update_onclick(fig, ax, x_train, y_train, dyn_items)
+soup_bowl()
