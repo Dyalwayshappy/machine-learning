@@ -1,0 +1,162 @@
+#使用梯度下降自动优化w和b的过程
+import math, copy
+import numpy as np
+import matplotlib.pyplot as plt
+plt.style.use('./deeplearning.mplstyle')
+from lab_utils_uni_副本 import plt_house_x, plt_contour_wgrad, plt_divergence, plt_gradients
+#还是使用costfunction里的house prices表格数据
+x_train = np.array([1.0, 2.0]) #特征值
+y_train = np.array([300.0, 500.0]) #目标值，target value
+#我们仍然需要cost function
+def cost_Function(x, y, w, b):
+
+    m = x.shape[0]  #训练实例的数量
+    cost = 0
+    for i in range(m):
+         f_wb = w * x[i] +b
+         cost = cost + (f_wb - y[i]) **2
+    total_cost = 1 / (2*m) * cost
+    return total_cost
+#上面这一段仍然是上次的cost function的实现
+#接下来是梯度下降的实现
+#实现梯度下降需要三个function（这次只为一项特征使用梯度下降）
+#“compute_gradient” 用来实现w和b的导数项
+#“compute_cost” 用来实现成本函数即cost_function
+#“gradient_descent” 同时利用compute_gradient和compute_cost
+#包含导数或偏导数的python变量的命名遵循这种模式： dj_db.
+#w.r.t 意思为 “With Respect To", 是J(w,b)对于b的偏导数
+def compute_gradient(x, y, w, b):
+    """
+        Computes the gradient for linear regression
+        Args:
+          x (ndarray (m,)): Data, m examples #数据
+          y (ndarray (m,)): target values  #目标值
+          w,b (scalar)    : model parameters  #模型参数
+        Returns
+          dj_dw (scalar): The gradient of the cost w.r.t. the parameters w   #成本相对于参数w的梯度
+          dj_db (scalar): The gradient of the cost w.r.t. the parameter b    #成本相对于参数b的梯度
+    """
+    #the number of training examples （m）
+    m = x.shape[0]
+    dj_dw = 0
+    dj_db = 0
+
+    for i in range(m):
+        f_wb = w * x[i] +b
+        dj_dw_i = (f_wb - y[i]) * x[i]
+        dj_db_i = f_wb - y[i]
+        dj_dw += dj_dw_i
+        dj_db += dj_db_i
+    dj_dw = dj_dw / m
+    dj_db = dj_db / m
+
+    return dj_dw, dj_db
+
+#这一步用图像上的点来查看我们数据的偏导数
+plt_gradients(x_train,y_train, compute_cost, compute_gradient)
+plt.show()
+#梯度点会慢慢远离最小值因为这里是缩放梯度，是从w和b的当前值减去导数值，这会使参数朝低成本方向移动
+#下面实现梯度下降
+def gradient_descent(x, y, w_in, b_in, num_iters, cost_function, gradient_function):
+    """
+        Performs gradient descent to fit w,b. Updates w,b by taking #更新w和b的num_iters是他的次数
+        num_iters gradient steps with learning rate alpha
+
+        Args: #以下为参数
+          x (ndarray (m,))  : Data, m examples
+          y (ndarray (m,))  : target values
+          w_in,b_in (scalar): initial values of model parameters #模型参数的初始值
+          alpha (float):     Learning rate #学习率
+          num_iters (int):   number of iterations to run gradient descent #运行梯度下降迭代的次数
+          cost_function:     function to call to produce cost #调用成本函数
+          gradient_function: function to call to produce gradient #调用梯度函数
+
+        Returns:
+          w (scalar): Updated value of parameter after running gradient descent #梯度下降结束后的w
+          b (scalar): Updated value of parameter after running gradient descent #梯度下降结束后的b
+          J_history (List): History of cost values #成本值的记录
+          p_history (list): History of parameters [w,b] #参数历史记录[w,b]
+          """
+
+    w = copy.deepcopy(w_in) #避免全剧修改w_in
+    #一个数组，用于存储每次迭代的成本 J 和 w，主要用于稍后绘图
+    J_history = []
+    P_history = []
+    b = b_in
+    w = w_in
+
+    for i in range(num_iters):
+        dj_dw, dj_db = gradient_descent(x,y,w,b) #使用gradient_function计算梯度并更新参数
+
+        b = b - alpha * dj_db #更新参数w和b，用原值减去导数值
+        w = w - alpha * dj_db
+        #保存每次迭代的J
+        if i < 100000:  #防止次数太多资源耗尽
+            J_history.append(cost_function(x,y,w,b))
+            P_history.append([w,b])
+        #每隔 10 次打印一次成本，如果 < 10 则打印尽可能多的迭代次数
+        if i % math.ceil(num_iters/10) == 0:
+            print(f"Iteration {i:4}: Cost {J_history[-1]:0.2e} ",
+                  f"dj_dw: {dj_dw: 0.3e}, dj_db: {dj_db: 0.3e}  ",
+                  f"w: {w: 0.3e}, b:{b: 0.5e}")
+
+    return w, b, J_history, P_history  #return w and J,w history for graphing 返回w和b还有绘图历史
+
+#初始化参数
+w_init = 0
+b_init = 0
+#一些梯度下降设置
+iterations = 1000
+tmp_alpha = 1.0e-2
+#运行梯度下降
+w_final, b_final, J_hist, P_hist = gradient_descent(x_train, y_train, w_init, b_init, tmp_alpha, iterations, cost_Function, compute_gradient)
+print(f"(w,b) found by gradient descent: ({w_init:8.4f}, {b_final:8.4f}")
+#成本一开始会很大，然后会迅速下降
+#偏导数dj_dw和dj_db也会变小，一开始很快，然后更慢，当接近图像碗底时，此时的导数值会比较小，这时梯度下降进度就会变慢
+#学习率一直保持不变
+print("-------------")
+#梯度下降成本与迭代次数的关系
+#在成功运行的情况下，成本应该总是降低的
+#下面是梯度下降成本与迭代次数的关系
+fig, (ax1, ax2) = plt.subplots(1, 2, constrained_layout=True, figsize=(12,4))
+ax1.plot(J_hist[:100])
+ax2.plot(1000+np.arange(len[J_hist[1000:]]), J_hist[1000:])
+ax1.set_title("Cost vs. iterations(start)"); ax2.set_title("Cost vs. iterations(end)")
+ax1.set_ylabel("Cost")              ;  ax2.set_ylabel("Cost")
+ax1.set_xlabel("iteration step")    ;  ax2.set_xlabel("iteration step")
+plt.show()
+#predictions
+#下面我们来实现预测
+#在此步之后我们已经找到了最好的w和b的值，现在已经可以预测house price了， 不出意外的话预测值与同一房屋的训练值几乎相同
+print(f"1000 sqft house prediction {w_final*1.0 + b_final:0.1f} Thousand dollars")
+print(f"1200 sqft house prediction {w_final*1.2 + b_fianl:0.1f} Thousand dollars")
+print(f"2000 sqft house prediction {w_final*2.0 + b_fianl:0.1f} Thousand dollars")
+#在成本(w,b)等值线图上绘制迭代成本来显示梯度下降执行的进度
+#下面就是绘制过程
+fig, ax = plt.subplots(1,1, figsize=(12,6))
+plt_contour_wgrad(x_train, y_train, p_hist, ax)
+#图中朝目标稳步单调发展
+#初始步数比接近目标步数大的多
+print("--------")
+#放大图像后我们会看到梯度下降的最后步骤，随着slope接近0，步之间的距离会越来越小
+fig, ax = plt.subplots(1,1, figsize=(12,4))
+plt_contour_wgrad(x_train, y_train, p_hist, ax, w_range=[180,220,0.5], b_range=[80, 120, 0.5], contours=[1,5,10,20], resolution=0.5)
+#关于学习率
+#学习率越大梯度下降的速度就越快，但是如果太大，就会发散
+#增加学习率
+#重新初始化参数
+w_init, b_init = 0
+iterations = 10
+tmp_alpha = 8.0e-1
+#run gradient descent
+w_final, b_final, J_hist, P_hist = gradient_descent(x_train, y_train, b_init, tmp_alpha, iterations, cost_Function, compute_gradient)
+#如果运行以上函数w和b的值会在正负之间来回跳动成本会增加而不是减少，这就表明学习率太大，函数会发散
+#以下是图例解释
+plt_divergence(p_hist, J_hist,x_train, y_train)
+plt.show()
+
+
+
+
+
+
