@@ -1,0 +1,55 @@
+import numpy as np
+#矩阵
+#是一个二维数组，m是行，n是列，矩阵的元素可以用二维索引来引用
+#矩阵表示法是，共有两个索引，一个是行一个是列
+#NumPy's basic data structure is an indexable
+#n-dimensional *array* containing elements of the same type (`dtype`).
+#These were described earlier. Matrices have a two-dimensional (2-D) index [m,n].
+#在之前的实现过程中，二维数组会用来保存训练数据，即m个示例，n个特征创建的(m,n)数组，目前不会设计矩阵计算，而是抽取二维矩阵中的一个示例作为向量进行计算
+a = np.zeros((1, 5))
+print(f"a shape = {a.shape}, a = {a}")
+
+a = np.zeros((2, 1))
+print(f"a shape = {a.shape}, a = {a}")
+
+a = np.random.random_sample((1, 1))
+print(f"a shape = {a.shape}, a = {a}")
+#以上是自动填充数据
+print('---------')
+#也可以手动输入
+a = np.array([[5], [4], [3]]);   print(f" a shape = {a.shape}, np.array: a = {a}")
+a = np.array([[5],   # One can also
+              [4],   # separate values
+              [3]]); #into separate rows
+print(f" a shape = {a.shape}, np.array: a = {a}")
+
+# a.shape中(m,n)就代表着数组的行数和列数
+print('-----------')
+#operation on matrices
+#vector indexing operations on matrices #矩阵的向量索引运算
+a = np.arange(6).reshape(-1, 2)   #reshape is a convenient way to create matrices #这是个便捷创建矩阵的方法  #创建一个包含六个连续数字的一维数组，然后将这些数字重新塑造成一个二维数组，每行有两列，reshape的第一个参数会根据另一个参数的维度计算出数组的另外一个shape属性值即计算给定数组大小的行数还有列数，reshape声明新数组的shape属性要与原数组保持一致
+print(f"a.shape: {a.shape}, \na= {a}")
+
+#access an element #访问一个元素
+print(f"\na[2,0].shape:   {a[2, 0].shape}, a[2,0] = {a[2, 0]},     type(a[2,0]) = {type(a[2, 0])} Accessing an element returns a scalar\n")
+
+#access a row #访问一行
+print(a[2])
+print(f"a[2].shape:   {a[2].shape}, a[2]   = {a[2]}, type(a[2])   = {type(a[2])}")
+#再次提醒！！！！索引是从0开始的
+print('---------------')
+#二维向量切片操作
+a = np.arange(20).reshape(-1,10)
+print(f"a = \n{a}")
+
+print("a[0, 2:7:1] = ", a[0, 2:7:1], ",  a[0, 2:7:1].shape =", a[0, 2:7:1].shape, "a 1-D array")
+#"0"表示a中的第一行（即索引为0）中的第3到第7列（即索引2到6）的元素，步长为1
+
+print("a[:, 2:7:1] = \n", a[:, 2:7:1], ",  a[:, 2:7:1].shape =", a[:, 2:7:1].shape, "a 2-D array")
+#访问所有元素
+print("a[:,:] = \n", a[:,:], ",  a[:,:].shape =", a[:,:].shape)
+#访问一行中的所有元素（常用！！）
+print("a[1,:] = ", a[1,:], ",  a[1,:].shape =", a[1,:].shape, "a 1-D array")
+#上述为访问第二行的所有元素
+# same as
+print("a[1]   = ", a[1],   ",  a[1].shape   =", a[1].shape, "a 1-D array")
