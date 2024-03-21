@@ -1,0 +1,15 @@
+import numpy as np
+
+#下面是numpy创建数组的讲解
+a = np.zeros(4);                     print(f"np.zeros(4):  a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+a = np.zeros((4,));                  print(f"np.zeros(4):  a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+a = np.random.random_sample(4);      print(f"np.random.random_sample(4): a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+
+#一些数组创建例程不采用形状元组：
+a = np.zeros(4);                     print(f"np.zeros(4.):       a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+a = np.random.randn(4);              print(f"np.random.rand(4):  a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+
+#也可以不使用自动填充手动填充值：
+a = np.array([5,4,3,2]);               print(f"np.array([5,4,3,2]):  a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+a = np.array([5., 4, 3, 2]);           print(f"np.array([5.,4,3,2]): a = {a}, a shape = {a.shape}, a data type = {a.dtype}")
+#以上都创建了一个具有四个元素的向量a， a.shape返回尺寸，输出后a shape返回(4,),即表示一个有四个元素的一维数组
