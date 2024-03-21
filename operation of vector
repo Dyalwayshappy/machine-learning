@@ -1,0 +1,127 @@
+import numpy as np
+import time
+#向量是通过索引和切片访问的
+#索引：通过数组中的位置引用数组元素
+#切片：根据索引从数组中获取元素
+#基础知识：索引从0开始
+
+#下面是一维向量的索引操作
+
+a = np.arange(10)
+print(a)
+
+#访问一个元素
+print(f"a[2].shape : {a[2].shape} a[2] = {a[2]}, Accessing an element returns a scalar") #访问一个元素且返回他的标量
+#接下来访问最后一个元素，负索引是从末尾开始计数
+print(f"a[-1] = {a[-1]}, Accessing an element")
+#索引必须在你创建的向量范围内！！！否则会报错！！！
+try:
+    c = a[10]
+except Exception as e:
+    print("The error message you'll see is:")
+    print(e)
+#这里正面a这个一维向量中没有索引为10的元素，超量访问了
+
+#下面是切片
+#(start:start:stop)!!
+a = np.arange(10)
+print(f"a = {a}")
+c = a[2:7:1]; print(f"a[2:7:1] = {c}")  #表示从索引为2到索引为7的元素，步幅为1
+d = a[2:7:2]; print(f"a[2:7:2] = {d}") #步幅为2
+e = a[3:];    print(f"a[3:] = {e}") #从索引为3之后的全部元素
+f = a[:3];    print(f"a[:3] = {f}")  #访问索引为3以下的所有元素
+g = a[:];     print(f"a[:] = {g}") #访问所有元素
+
+#单个向量运算
+a = np.array([1,2,3,4]) #创建一个向量
+b = -a  #使a向量中所有向量取相反数
+print(f"b = {b}")
+#求a向量中所有元素的和
+b = np.sum(a)
+print(f"b = np.sum(a) : {b}")
+#求所有元素平均值
+b = np.mean(a)
+print(f"b = np.mean(a) : {b}")
+#给每个元素都平方
+b = a**2
+print(f"b = a**2 : {b}")
+
+#向量运算 (逐个元素相加)
+a = np.array([1,2,3,4])
+b = np.array([2,3,4,5])
+print(a+b)
+#切记用此运算方法，向量必须为同一维度，不匹配的向量是无法进行计算的
+print('---------')
+
+#可以用乘以一个标量的方式缩放一个向量
+a = np.array([1,2,3,4])
+b = a * 2
+print(b)
+
+#向量的点积 dot product
+#两个向量中的值按元素相乘，然后相加
+#向量点积要求两个向量的维度相同
+a = np.array([1,2,3,4])
+b = np.array([2,3,4,5])
+def my_dot(a,b):
+    """
+       Compute the dot product of two vectors
+
+        Args:
+          a (ndarray (n,)):  input vector
+          b (ndarray (n,)):  input vector with same dimension as a
+
+        Returns:
+          x (scalar):   #输入两个向量这里返回的是标量
+        """
+    x = 0
+    for i in range(a.shape[0]):
+        x = x + a[i] * b[i]
+    return x
+
+print(f"my_dot(a,b) = {my_dot(a,b)}") #2+6+12+20
+#针对上述同样的操作，np.dot也可以实现
+a = np.array([1,2,3,4])
+b = np.array([2,3,4,5])
+c = np.dot(a,b)
+print(c)
+c = np.dot(b,a)
+print(c)
+#最重要的一点是：一定要保证做点积运算的两个向量都是同维度向量
+print('------------')
+#numpy这个库会提高速度内存效率
+np.random.seed(1) #，生成随机数，用于按顺序生成一组固定的数组
+a = np.random.rand(10000000)  # very large arrays
+b = np.random.rand(10000000)
+
+tic = time.time()  # capture start time 点积开始时间
+c = np.dot(a, b)
+toc = time.time()  # capture end time 点积结束时间
+
+print(f"np.dot(a, b) =  {c:.4f}")
+print(f"Vectorized version duration: {1000*(toc-tic):.4f} ms ")
+
+tic = time.time()  # capture start time
+c = my_dot(a,b)
+toc = time.time()  # capture end time
+
+print(f"my_dot(a, b) =  {c:.4f}")
+print(f"loop version duration: {1000*(toc-tic):.4f} ms ")
+
+del(a);del(b)  #remove these big arrays from memory
+#通过对比可以发现使用numpy用了13ms而my_dot用了1403ms.
+print('--------------')
+#后面我们的示例x_train会被存放在一个维度为(m，n)的数组中，他是一个二维数组或者说是一个矩阵
+# w是一个shape为(n,)的一维向量
+#我们会通过循环示来进行这个操作，通过索引"X" 提取出每个示例并单独处理
+# X[i]会返回一个shape为(n,)的一维向量，所以涉及到X[i]的运算一般都是向量与向量之间的
+# for example
+X = np.array([[1],[2],[3],[4]])
+w = np.array([2])
+c= np.dot(X[1], w)
+print(c)
+print(X[1])
+print(w)
+print(f"X[1] has shape {X[1].shape}")
+print(f"w has shape {w.shape}")
+print(f"c has shape {c.shape}")
