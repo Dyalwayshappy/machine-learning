@@ -1,0 +1,155 @@
+#多特征梯度下降
+import numpy as np
+np.set_printoptions(precision=2)
+import matplotlib.pyplot as plt
+plt.style.use('deeplearning.mplstyle')
+dlblue = '#0096ff'; dlorange = '#FF9300'; dldarkred='#C00000'; dlmagenta='#FF40FF'; dlpurple='#7030A0';  #这段是赋值操作，用来在绘图时指定颜色
+from lab_utils_multi import load_house_data, compute_cost, run_gradient_descent
+from lab_utils_multi import norm_plot, plt_contour_multi, plt_equal_scale, plot_cost_i_w
+x_train, y_train = load_house_data()
+x_features = ['size(sqft)', 'bedrooms', 'floors', 'age']
+#下面是每个特征与价格的关系所绘制的图
+fig,ax = plt.subplots(1,4, figsize=(12,3), sharey=True)
+for i in range(len(ax)):
+    ax[i].scatter(x_train[:,i], y_train)
+    ax[i].set_xlabel(x_features[i])
+ax[0].set_ylabel('price(1000`s)')
+plt.show()
+
+#设置学习率为9.9e-7(9.9*10^-7)
+_, _, hist = run_gradient_descent(X_train, y_train, 10, alpha = 9.9e-7)
+plot_cost_i_w(x_train, y_train, hist)
+#根据图表显示，证明这个学习率不是一个很好的值，因为他每次都会超过最佳的值，并且越来越大（在一个y=ax^2+bx+c中来回震荡）
+#下面我们设置一个小一点的学习率试一下
+_,_,hist = run_gradient_descent(X_train, y_train, 10, alpha = 9e-7)
+plot_cost_i_w(X_train, y_train, hist)
+#这次的过程中，成本不断下降，证明alpha不太大，但是他在迭代次数增加后，他每次的迭代都会变换符号，这是因为他每次都跳过了最佳值，但最终通过迭代他也会变得收敛
+print('-----------------')
+#接下来我们尝试更小的值
+#set alpha to 1e-7(1*10^-7)
+_,_,hist = run_gradient_descent(X_train, y_train, 10, alpha = 1e-7)
+#这次的过程中，成本也是在不断下降的
+plot_cost_i_w(X_train,y_train,hist)
+#由图可知，成本正随着每次的迭代逐渐下降，权重的更新也一直在减少，但没有超过最小值，这个方案运行最终也将收敛，但收敛速度没有上一个快
+print('-----------------')
+
+#接下来我们进入特征缩放的实现
+#其实就是对权重数w(i)的选择, 特征缩放的目的是使梯度下降运行的更快
+#将每个特征除以我们选定的值，得到-1到1之间的范围，特征值很大的时候参数尽可能选小，特征值很小的时候参数尽量选大
+#第二种是Mean Normalization也叫均值归一化
+#即x(i) = x(i) - u(i) / max - min
+#第一步先找到训练机x1上的平均值，叫做M1
+#举个例子，假设average = 600
+# 300<=x1<=2000 x1 = (x1 - M1) / 2000 - 300 ---->  -0.18<= x1 <= 0.82 (结果在-1和1之间)
+#第三种是z-score normalization
+#第一步要计算每个特征的标准差及正态分布又叫作钟形曲线 计作sigma1
+#第二步同样是计算平均值
+# x1 = （x1 - M1） /  sigam1 及得到缩放后的x1的值
+def zscore_normalize_features(X):
+    """
+    computes  X, zcore normalized by column
+
+    Args:
+      X (ndarray): Shape (m,n) input data, m examples, n features
+
+    Returns:
+      X_norm (ndarray): Shape (m,n)  input normalized by column
+      mu (ndarray):     Shape (n,)   mean of each feature
+      sigma (ndarray):  Shape (n,)   standard deviation of each feature
+    """
+    # find the mean of each column/feature 找平均值
+    mu = np.mean(X, axis=0)  # mu will have shape (n,)
+    # find the standard deviation of each column/feature 找标准差
+    sigma = np.std(X, axis=0)  # sigma will have shape (n,)
+    # element-wise, subtract mu for that column from each example, divide by std for that column 减去平均值除以sigma
+    X_norm = (X - mu) / sigma
+
+    return (X_norm, mu, sigma)
+
+# check our work 检查一下缩放结果
+# from sklearn.preprocessing import scale
+# scale(X_orig, axis=0, with_mean=True, with_std=True, copy=True)
+print('------------')
+#让我们看一下z-score标准化的步骤
+mu     = np.mean(X_train,axis=0) #平均值
+sigma  = np.std(X_train,axis=0) #标准差
+X_mean = (X_train - mu) #分子
+X_norm = (X_train - mu)/sigma #计算结果
+
+fig,ax=plt.subplots(1, 3, figsize=(12, 3))
+ax[0].scatter(X_train[:,0], X_train[:,3])
+ax[0].set_xlabel(X_features[0]); ax[0].set_ylabel(X_features[3]);
+ax[0].set_title("unnormalized")
+ax[0].axis('equal')
+
+ax[1].scatter(X_mean[:,0], X_mean[:,3])
+ax[1].set_xlabel(X_features[0]); ax[0].set_ylabel(X_features[3]);
+ax[1].set_title(r"X - $\mu$")
+ax[1].axis('equal')
+
+ax[2].scatter(X_norm[:,0], X_norm[:,3])
+ax[2].set_xlabel(X_features[0]); ax[0].set_ylabel(X_features[3]);
+ax[2].set_title(r"Z-score normalized")
+ax[2].axis('equal')
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+fig.suptitle("distribution of features before, during, after normalization")
+plt.show()
+#上面是房子年限“age”和“sqft”平方英尺之间的关系，运用等比例绘制
+#下面我们将数据标准化后与原数据进行对比
+# normalize the original features
+X_norm, X_mu, X_sigma = zscore_normalize_features(X_train)
+print(f"X_mu = {X_mu}, \nX_sigma = {X_sigma}")
+print(f"Peak to Peak range by column in Raw        X:{np.ptp(X_train,axis=0)}")
+print(f"Peak to Peak range by column in Normalized X:{np.ptp(X_norm,axis=0)}")
+#by normalization，每列的峰值范围从数千倍减少至2-3倍
+fig,ax=plt.subplots(1, 4, figsize=(12, 3))
+for i in range(len(ax)):
+    norm_plot(ax[i],X_train[:,i],)
+    ax[i].set_xlabel(X_features[i])
+ax[0].set_ylabel("count");
+fig.suptitle("distribution of features before normalization")
+plt.show()
+fig,ax=plt.subplots(1,4,figsize=(12,3))
+for i in range(len(ax)):
+    norm_plot(ax[i],X_norm[:,i],)
+    ax[i].set_xlabel(X_features[i])
+ax[0].set_ylabel("count");
+fig.suptitle(f"distribution of features after normalization")
+plt.show()
+#上面标准化数据的范围以0为中心，大概范围为-1/1，更值得注意的是，每个特征的范围都是相似的
+pirnt('-------------')
+#接下来重新运行梯度下降，注意极大的alpha值会使梯度下降的速度加快
+w_norm, b_norm, hist = run_gradient_descent(X_norm, y_train, 1000, 1.0e-1, )
+#可以注意到的是缩放后的特征得到非常准确的结果所需要的时间快的多，在这个运行结束后，每个参数的梯度都很小，！！！0.1的学习率是使用normalization features进行回归非常好的开端
+#下面我们来看一下预测值与目标值的关系图
+#predict target using normalized features
+m = X_norm.shape[0]
+yp = np.zeros(m)
+for i in range(m):
+    yp[i] = np.dot(X_norm[i], w_norm) + b_norm
+
+    # plot predictions and targets versus original features
+fig,ax=plt.subplots(1,4,figsize=(12, 3),sharey=True)
+for i in range(len(ax)):
+    ax[i].scatter(X_train[:,i],y_train, label = 'target')
+    ax[i].set_xlabel(X_features[i])
+    ax[i].scatter(X_train[:,i],yp,color=dlorange, label = 'predict')
+ax[0].set_ylabel("Price"); ax[0].legend();
+fig.suptitle("target versus prediction using z-score normalized model")
+plt.show()
+#结果是非常不错的
+#需要注意的是 1. 如果是对于多个特征， 我们不能再用一个图来显示结果与特征的关系
+# 2. 绘图时， 使用归一化特征， 使用从normalization中学习到的参数进行任何预测也必须进行normalizaiton
+print('--------------')
+#我们的目的是使用模型来预测数据集中没有的房价
+#下面是一个例子
+x_house = np.array([1200, 3, 1, 40])  #1200sqft， 3 bedrooms， 1 floor， 40 years old
+x_house_norm = (x_house - X_mu) / X_sigma
+print(x_house_norm)
+x_house_predict = np.dot(x_house_norm, w_norm) + b_norm
+print(f" predicted price of a house with 1200 sqft, 3 bedrooms, 1 floor, 40 years old = ${x_house_predict*1000:0.0f}")
+#查看特征缩放还有一种方法是通过成本等值线及cost contours，When feature scales do not match, the plot of cost versus parameters in a contour plot is asymmetric.
+#另外我们还有一个自动收敛测试
+#Automatic convergence test
+#让sigma为10^-3
+#若在一次更新中成本J减少的小于这个数，那么曲线的slope应该是平缓的，属于平缓的部分，应该在接近最小值，可以声明其为收敛的。
