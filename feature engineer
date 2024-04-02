@@ -1,0 +1,88 @@
+#特征工程和多项式回归
+import numpy as np
+import matplotlib.pyplot as plt
+np.set_printoptions(precision=2) #防止小数过溢
+plt.style.use('deeplearning.mplstyle')
+from lab_utils_multi import zscore_normalize_features, run_gradient_descent_feng
+#多项式特征 Polynomial Features
+#先建一个目标数据
+#x = np.arange(0,20,1)
+#y = 1 + x**2
+#X = x.reshape(-1 , 1) #这里是改变数组排列
+
+#model_w, model_b = run_gradient_descent_feng(X, y, iterations=1000, alpha = 1e-2)
+
+#plt.scatter(x, y, marker='x', c='r',label="Actural Value"); plt.title("no feature engineering")
+#plt.plot(x, X@model_w + model_b, label="Predicted Value"); plt.xlabel("X"); plt.ylabel("y"); plt.legend(); plt.show()
+
+#从上面的图可以看出来，预期的和我们实际的有偏差，我们接下来将原始输入数据更换成平方数据试试
+x = np.arange(0, 20, 1)
+y = 1 + x**2
+#下面添加工程特征
+# Engineer features
+X = x**2      #<-- added engineered feature
+X = X.reshape(-1, 1)  #X should be a 2-D Matrix  #这里是改变数组排列，可以根据指定数值将数据转换为特定的行列数（行，列），其实就是转换成矩阵
+#-1在这里意思其实就是不指定行数，我只给定列数1，行数无所谓，让计算机自己安排
+model_w,model_b = run_gradient_descent_feng(X, y, iterations=10000, alpha = 1e-5)
+
+plt.scatter(x, y, marker='x', c='r', label="Actual Value"); plt.title("Added x**2 feature")
+plt.plot(x, np.dot(X,model_w) + model_b, label="Predicted Value"); plt.xlabel("x"); plt.ylabel("y"); plt.legend(); plt.show()
+#可以看到改变为x**2后我们的输出结果几乎完美，值得注意的是下面打印出来的w和b的值是通过gradient descent得到的
+print('--------------')
+#通过上面我们知道要选择x**2这一项，但很多时候选择可能并不是这么明显，比如y = w(0)x(0)+w(1)x(1)^2+w(2)x(2)^3 + b?
+x = np.arange(0, 20, 1)
+y = x**2
+#我们仍要添加特征工程
+X = np.c_[x, x**2, x**3]
+
+model_w,model_b = run_gradient_descent_feng(X, y, iterations=10000, alpha = 1e-7)
+
+plt.scatter(x, y, marker='x', c='r', label="Actual Value"); plt.title("Added x , x**2, x**3 feature");
+plt.plot(x, np.dot(X,model_w) + model_b, label="Predicted Value"); plt.xlabel("x"); plt.ylabel("y"); plt.legend(); plt.show()
+
+#上面可以看到，多项式特征是根据他们与目标数据的匹配程度来选择的，需要注意，我们创建了新的特征但我们仍然要使用线性回归，最佳特征将相对于目标呈线性
+#下面是例子
+x = np.arange(0, 20, 1)
+y = x**2
+X = np.c_[x, x**2, x**3]
+X_features = ['x', 'x^2', 'x^3']
+
+fig, ax = plt.subplots(1, 3, figsize=(12,3), sharey=True)
+for i in range(len(ax)):
+    ax[i].scatter(X[:, i], y)
+    ax[i].set_xlabel(X_features[i])
+ax[0].set_ylabel("y")
+plt.show()
+#从上图可以看出，目标值y的x**2的特征值是线性的，其他两个是曲线
+#当数据集具有不同
+#尺度的特征，则应该使用特征缩放来加速梯度下降的速度，我们在上述例子使用z-score试试看
+x = np.arange(0, 20, 1)
+X = np.c_[x, x**2, x**3]
+print(f'Peak to Peak range by column in Raw X:{np.ptp(X, axis=0)}') #np.ptp计算数组中沿指定轴的峰值范围及最大值到最小值之间的差，在这是为了计算特征矩阵X的每列的峰值到峰值的范围
+
+#添加z-score标准化
+X = zscore_normalize_features(X)
+print(f"Peak to Peak range by column in Normalized X:{np.ptp(X, axis=0)}")#这里是标准化之后的
+#下面我们尝试换一个alpha值
+x = np.arange(0, 20, 1)
+y = x**2
+
+X = np.c_[x, x**2, x**3]
+X = zscore_normalize_features(X)
+model_w, model_b = run_gradient_descent_feng(X, y, iterations=100000, alpha=1e-1)
+
+plt.scatter(x, y, marker='x', c='r', label='Actual Value'); plt.title("Normailized x, x**2, x**3 features")
+plt.plot(x, X@model_w+model_b, label='Predicted Value'); plt.xlabel("x"); plt.ylabel("y"); plt.legend(); plt.show()
+#特征缩放使得收敛速度更快
+#通过特征工程我们也可以对相对复杂的函数进行建模
+x = np.arange(0,20,1)
+y = np.cos(x/2)
+
+X = np.c_[x, x**2, x**3, x**4, x**5,x**6,x**7,x**8,x**9,x**10,x**11,x**12,x**13]
+X = zscore_normalize_features(X)
+
+model_w, model_b = run_gradient_descent_feng(X, y, iterations=100000, alpha=1e-1)
+
+plt.scatter(x, y, marker='x', c='r', label='Actual Value'); plt.title("Normalized x, x**2, x**3 features")
+plt.plot(x, X@model_w+model_b, label='Predicted Value'); plt.xlabel("x"); plt.ylabel("y"); plt.legend();plt.show()
+#总结：特征工程的实现方式就是通过自己的经验在原有特征上通过结合和改造创造出新的特征值）
