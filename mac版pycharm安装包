@@ -1,0 +1,9 @@
+若在mac版pycharm安装包时
+在IDE选择python解释器选择show all
+找到目标解释器并复制路径
+打开电脑终端
+再运行-->
+source <路径>/bin/activate
+最后-->
+pip install <package name>
+下载过程会在终端显示，紧接着就可以使用了！
