@@ -1,0 +1,32 @@
+import numpy as np
+np.set_printoptions(precision=2)
+from sklearn.linear_model import LinearRegression, SGDRegressor #scikit-learn中的线性回归模型
+from sklearn.preprocessing import StandardScaler #Standardscaler是用于特征缩放标准化的工具
+from lab_utils_multi import load_house_data
+import matplotlib.pyplot as plt
+dlblue = '#0096ff'; dlorange = '#FF9300'; dldarkred='#C00000'; dlmagenta='#FF40FF'; dlpurple='#7030A0';
+#上面定义了五种颜色
+plt.style.use('./deeplearning.mplstyle')
+X_train = np.array([1.0,2.0])  #特征
+y_train = np.array([300,500])  #目标值
+#下面用scikit-learn执行回归
+#第一步创建回归对象，初始化线性回归模型
+linear_model = LinearRegression()
+#X 必须是一个二维矩阵
+#利用与对象fit的关联方式，执行回归，将参数拟合到输入数据，拟合模型
+linear_model.fit(X_train.reshape(-1,1), y_train)
+#获取模型参数得到截距b和斜率w
+b = linear_model.intercept_
+w = linear_model.coef_
+print(f"w = {w:}, b = {b:0.2f}") #0.2f是以浮点数打印b且保留两位小数
+#手动计算预测值，面积为1200sqft
+print(f"'manual' prediction: f_wb = wx+b : {1200*w + b}")
+#下一步做出预测
+y_pred = linear_model.predict(X_train.reshape(-1,1))
+print("Prediction on training set:", y_pred)
+
+X_test = np.array([[1200]])
+print(f"Prediction for 1200 sqft house: ${linear_model.predict(X_test)[0]:0.2f}")
+#结果相同证明手动计算是预测值和我们使用scikit-learn预测的值相同
+
+
