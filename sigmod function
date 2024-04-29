@@ -1,0 +1,23 @@
+#logistic regression
+import numpy as np
+%matplotlib widget
+import matplotlib.pyplot as plt
+from lab_utils_common import draw_vthresh
+from plt_one_addpt_onclick import plt_one_addpt_onclick
+plt.style.use('./deeplearning.mplstyle')
+
+# use numpy库中的exp()
+
+#input is an array # exp()可快速计算指数e^z 输入数组z中的所有元素
+input_array = np.array([1,2,3])
+exp_array = np.exp(input_array)
+print('input to exp:', input_array)
+print('output of exp:', exp_array)
+
+#input is a single number
+
+input_val = 1
+exp_val = np.exp(input_val)
+
+print('input to exp:', input_val)
+print('output of exp:', exp_val)
