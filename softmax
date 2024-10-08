@@ -1,0 +1,31 @@
+softmax is a generalization of logistic regression
+用来解决multiclass classification problem
+review the logistic regression (with two output values)
+z = w . x + b
+
+X  a1 = g(z) = 1 / 1+e^(-z) = P(y=1|x)
+
+O  a2 = 1 - a1 = P(y=0|x)
+
+softmax regression ( N possible outputs)
+
+Zj = Wj . x + Bj (j = 1 ..... N)
+Parameters    W1,W2,...,Wn
+              B1,B2,...,Bn
+Aj = e^Zj / e^Z1 到 e^Zn的总和
+
+note: a1 + a2 + ... + an = 1
+
+Cost of softmax regression and logistic regression
+loss  = -ylog(a1) - (1-y)log(1 - a1)  (1 - a1) = a2
+J (w,b) = average loss
+
+for the softmax regression
+
+loss(a1,...,an, y) = if y = 1 , -log(a1)
+                     if y = 2 , -log(a2)
+                     ......
+                     if y = N , -log(aN)
+
+
+loss = -log(aj) if y = j
