@@ -34,3 +34,17 @@ def eval_cat_err(y, yhat):
     ### END CODE HERE ###
 
     return (cerr)
+
+y_hat = np.array([1, 2, 0])
+y_tmp = np.array([1, 2, 3])
+print(f"categorization error {np.squeeze(eval_cat_err(y_hat, y_tmp)):0.3f}, expected:0.333" )
+y_hat = np.array([[1], [2], [0], [3]])
+y_tmp = np.array([[1], [2], [1], [3]])
+print(f"categorization error {np.squeeze(eval_cat_err(y_hat, y_tmp)):0.3f}, expected:0.250" )
+
+# BEGIN UNIT TEST  
+test_eval_cat_err(eval_cat_err)
+# END UNIT TEST
+# BEGIN UNIT TEST  
+test_eval_cat_err(eval_cat_err)
+# END UNIT TEST
