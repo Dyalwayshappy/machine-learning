@@ -1,0 +1,53 @@
+#splitting dataset
+# Generate some data
+X,y,x_ideal,y_ideal = gen_data(18, 2, 0.7)
+print("X.shape", X.shape, "y.shape", y.shape)
+
+#split the data using sklearn routine
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.33, random_state=1)
+print("X_train.shape", X_train.shape, "y_train.shape", y_train.shape)
+print("X_test.shape", X_test.shape, "y_test.shape", y_test.shape)
+#混合需要训练的数据点和没有训练的数据点
+fig, ax = plt.subplots(1,1,figsize=(4,4))
+ax.plot(x_ideal, y_ideal, "--", color = "orangered", label="y_ideal", lw=1)
+ax.set_title("Training, Test",fontsize = 14)
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+
+ax.scatter(X_train, y_train, color = "red",           label="train")
+ax.scatter(X_test, y_test,   color = dlc["dlblue"],   label="test")
+ax.legend(loc='upper left')
+plt.show()
+
+
+# UNQ_C1
+# GRADED CELL: eval_mse
+def eval_mse(y, yhat):
+    """
+    Calculate the mean squared error on a data set.
+    Args:
+      y    : (ndarray  Shape (m,) or (m,1))  target value of each example
+      yhat : (ndarray  Shape (m,) or (m,1))  predicted value of each example
+    Returns:
+      err: (scalar)
+    """
+    m = len(y)
+    err = 0.0
+    for i in range(m):
+        err_i = (yhat[i] - y[i] **2)
+        err += err_i
+    err = err / (2*m)
+
+    ### START CODE HERE ###
+
+    ### END CODE HERE ###
+
+    return (err)
+
+y_hat = np.array([2.4, 4.2])
+y_tmp = np.array([2.3, 4.1])
+eval_mse(y_hat, y_tmp)
+
+# BEGIN UNIT TEST
+test_eval_mse(eval_mse)
+# END UNIT TEST
